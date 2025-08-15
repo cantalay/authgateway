@@ -1,9 +1,26 @@
 server:
-  port: 8080
+  port: 8181
 
 spring:
   application:
     name: auth-gateway
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: https://keycloak.cantalay.com/realms/master
+            user-name-attribute: preferred_username
+        registration:
+          keycloak:
+            client-id: gateway-client
+            client-secret: lNNGQ7iNWhTkLWELRpwkSmYwA0xGdfx5
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid,profile,email
+      resourceserver:
+        jwt:
+          issuer-uri: https://keycloak.cantalay.com/realms/master
   cloud:
     gateway:
       routes:
@@ -11,5 +28,9 @@ spring:
           uri: http://httpbin.org
           predicates:
             - Path=/get
-      default-filters:
-        - AddRequestHeader=Correlation-Id, ${random.uuid}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
