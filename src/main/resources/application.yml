@@ -1,0 +1,15 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: auth-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: example-route
+          uri: http://httpbin.org
+          predicates:
+            - Path=/get
+      default-filters:
+        - AddRequestHeader=Correlation-Id, ${random.uuid}
