@@ -23,14 +23,22 @@ spring:
           issuer-uri: https://keycloak.cantalay.com/realms/master
   cloud:
     gateway:
-      routes:
-        - id: example-route
-          uri: http://httpbin.org
-          predicates:
-            - Path=/get
+      server:
+        webflux:
+          routes:
+            - id: example-route
+              uri: http://httpbin.org
+              predicates:
+                - Path=/get
 
 management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: health, info, prometheus  # sadece gerekli endpointler
+  endpoint:
+    prometheus:
+      access: UNRESTRICTED
+  metrics:
+    tags:
+      application: ${spring.application.name}
