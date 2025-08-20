@@ -9,7 +9,7 @@ spring:
       client:
         provider:
           keycloak:
-            issuer-uri: https://keycloak.cantalay.com/realms/master
+            issuer-uri: http://keycloak.cantalay.com/realms/master
             user-name-attribute: preferred_username
         registration:
           keycloak:
@@ -30,6 +30,48 @@ spring:
               uri: http://httpbin.org
               predicates:
                 - Path=/get
+      default-filters:
+        - AddRequestHeader=X-Correlation-Id, ${random.uuid}
+      routes:
+        # Token alma
+        - id: keycloak-token
+          uri: https://keycloak.cantalay.com
+          predicates:
+            - Path=/token
+          filters:
+            - RewritePath=/token, /realms/master/protocol/openid-connect/token
+
+        # Refresh token
+        - id: keycloak-refresh
+          uri: https://keycloak.cantalay.com
+          predicates:
+            - Path=/refresh
+          filters:
+            - RewritePath=/refresh, /realms/master/protocol/openid-connect/token
+
+        # Kullanıcı bilgisi
+        - id: keycloak-userinfo
+          uri: https://keycloak.cantalay.com
+          predicates:
+            - Path=/userinfo
+          filters:
+            - RewritePath=/userinfo, /realms/master/protocol/openid-connect/userinfo
+
+        # Yetkilendirme
+        - id: keycloak-authorize
+          uri: https://keycloak.cantalay.com
+          predicates:
+            - Path=/authorize
+          filters:
+            - RewritePath=/authorize, /realms/master/protocol/openid-connect/auth
+
+        # Logout
+        - id: keycloak-logout
+          uri: https://keycloak.cantalay.com
+          predicates:
+            - Path=/logout
+          filters:
+            - RewritePath=/logout, /realms/master/protocol/openid-connect/logout
 
 management:
   endpoints:
@@ -42,3 +84,4 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+
